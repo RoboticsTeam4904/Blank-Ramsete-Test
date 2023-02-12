@@ -59,7 +59,7 @@ public class DriveSubsystem extends SubsystemBase {
           DriveConstants.kRightEncoderReversed);
 
   // The gyro sensor 
-  private final Gyro m_gyro = new AHRS(SerialPort.Port.kMXP); //TODO: might break
+  private final AHRS m_gyro = new AHRS(SerialPort.Port.kMXP); //TODO: might break
 
   // Odometry class for tracking robot pose
   private final DifferentialDriveOdometry m_odometry;
@@ -69,8 +69,7 @@ public class DriveSubsystem extends SubsystemBase {
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. Depending on how your robot's
     // gearbox is constructed, you might have to invert the left side instead.
-    m_rightMotors.setInverted(true);
-
+    m_leftMotors.setInverted(true);
     // Sets the distance per pulse for the encoders
     m_leftEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);
     m_rightEncoder.setDistancePerPulse(DriveConstants.kEncoderDistancePerPulse);

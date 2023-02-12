@@ -51,9 +51,8 @@ public class RobotContainer {
 // The robot's subsystems
     //motors
      
-    
+    private final DriveSubsystem m_robotDrive;
 
-  private final DriveSubsystem m_robotDrive = new DriveSubsystem();
 
   // The driver's controller
   XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
@@ -68,6 +67,9 @@ public class RobotContainer {
     Component.leftBTalonFX.setInverted(true);
     Component.rightATalonFX = new WPI_TalonFX(Constants.DriveConstants.kRightMotor1Port);
     Component.rightBTalonFX = new WPI_TalonFX(Constants.DriveConstants.kRightMotor2Port);
+    System.out.println("motorcontrollers created");
+    m_robotDrive = new DriveSubsystem();
+
     // Configure default commands
     // Set the default drive command to split-stick arcade drive
     m_robotDrive.setDefaultCommand(
