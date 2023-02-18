@@ -17,16 +17,25 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.RamseteLogging;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
@@ -46,12 +55,12 @@ public class RobotContainer {
         public static WPI_TalonFX leftBTalonFX;
         public static WPI_TalonFX rightATalonFX;
         public static WPI_TalonFX rightBTalonFX;
+        public static DriveSubsystem m_robotDrive;
 }
 
 // The robot's subsystems
     //motors
      
-    private final DriveSubsystem m_robotDrive;
 
 
   // The driver's controller
@@ -68,18 +77,18 @@ public class RobotContainer {
     Component.rightATalonFX = new WPI_TalonFX(Constants.DriveConstants.kRightMotor1Port);
     Component.rightBTalonFX = new WPI_TalonFX(Constants.DriveConstants.kRightMotor2Port);
     System.out.println("motorcontrollers created");
-    m_robotDrive = new DriveSubsystem();
+    Component.m_robotDrive = new DriveSubsystem();
 
     // Configure default commands
     // Set the default drive command to split-stick arcade drive
-    m_robotDrive.setDefaultCommand(
+    Component.m_robotDrive.setDefaultCommand(
         // A split-stick arcade command, with forward/backward controlled by the left
         // hand, and turning controlled by the right.
         new RunCommand(
             () ->
-                m_robotDrive.arcadeDrive(
+                Component.m_robotDrive.arcadeDrive(
                     -m_driverController.getLeftY(), -m_driverController.getRightX()),
-            m_robotDrive));
+            Component.m_robotDrive));
   }
 
   /**
@@ -91,8 +100,8 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // Drive at half speed when the right bumper is held
     new JoystickButton(m_driverController, Button.kRightBumper.value)
-        .onTrue(new InstantCommand(() -> m_robotDrive.setMaxOutput(0.5)))
-        .onFalse(new InstantCommand(() -> m_robotDrive.setMaxOutput(1)));
+        .onTrue(new InstantCommand(() -> Component.m_robotDrive.setMaxOutput(0.5)))
+        .onFalse(new InstantCommand(() -> Component.m_robotDrive.setMaxOutput(1)));
     new JoystickButton(m_driverController, Button.kA.value)
         .onTrue(getAutonomousCommand()); 
     }
@@ -137,27 +146,50 @@ public class RobotContainer {
             // Pass config
             config);
 
-    RamseteCommand ramseteCommand =
-        new RamseteCommand(
+    RamseteLogging ramseteCommand =
+        new RamseteLogging(
             exampleTrajectory,
-            m_robotDrive::getPose,
+            Component.m_robotDrive::getPose,
             new RamseteController(AutoConstants.kRamseteB, AutoConstants.kRamseteZeta),
             new SimpleMotorFeedforward(
                 DriveConstants.ksVolts,
                 DriveConstants.kvVoltSecondsPerMeter,
                 DriveConstants.kaVoltSecondsSquaredPerMeter),
             DriveConstants.kDriveKinematics,
-            m_robotDrive::getWheelSpeeds,
+            Component.m_robotDrive::getWheelSpeeds,
             new PIDController(DriveConstants.kPDriveVel, 0, 0),
             new PIDController(DriveConstants.kPDriveVel, 0, 0),
             // RamseteCommand passes volts to the callback
-            m_robotDrive::tankDriveVolts,
-            m_robotDrive);
+            Component.m_robotDrive::tankDriveVolts,
+            Component.m_robotDrive);
 
     // Reset odometry to the starting pose of the trajectory.
-    m_robotDrive.resetOdometry(exampleTrajectory.getInitialPose());
 
-    // Run path following command, then stop at the end.
-    return ramseteCommand.andThen(() -> m_robotDrive.tankDriveVolts(0, 0));
+    Component.m_robotDrive.resetOdometry(exampleTrajectory.getInitialPose());
+    
+    
+    ArrayList<ArrayList> TrajectoryData = new ArrayList<ArrayList>(); 
+    for (double elapsed=0; elapsed<exampleTrajectory.getTotalTimeSeconds(); elapsed += 0.02) {
+      var mmm = exampleTrajectory.sample(elapsed);
+      SmartDashboard.putNumber("Intended Trajectory elapsed_time", mmm.timeSeconds);
+      SmartDashboard.putNumber("Intended Trajectory velocity", mmm.velocityMetersPerSecond);
+      SmartDashboard.putNumber("Intended Trajectory poseX", mmm.poseMeters.getX());
+      SmartDashboard.putNumber("Intended Trajectory poseY", mmm.poseMeters.getY());
+      SmartDashboard.putNumber("Intended Trajectory curvature", mmm.curvatureRadPerMeter);
+      TrajectoryData.add(new ArrayList<Double>(Arrays.asList(mmm.timeSeconds, mmm.velocityMetersPerSecond, mmm.curvatureRadPerMeter, mmm.poseMeters.getX(), mmm.poseMeters.getY())));
+    }
+    //write trajectory data to a json file
+    try {
+      FileWriter myWriter = new FileWriter("/home/lvuser/trajectoryData.json");
+      myWriter.write(TrajectoryData.stream().map(Object::toString).collect(Collectors.joining(", ", "[", "]")));
+      myWriter.close();
+    } catch (IOException e) {
+        System.out.println("Failed to write ideal trajectory data," + e);
   }
+
+// Run path following command, then stop at the end.
+return ramseteCommand.andThen(() -> Component.m_robotDrive.tankDriveVolts(0, 0));
+  
+
+}
 }
