@@ -15,7 +15,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.AutoConstants;
@@ -27,10 +29,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -102,9 +106,10 @@ public class RobotContainer {
     new JoystickButton(m_driverController, Button.kRightBumper.value)
         .onTrue(new InstantCommand(() -> Component.m_robotDrive.setMaxOutput(0.5)))
         .onFalse(new InstantCommand(() -> Component.m_robotDrive.setMaxOutput(1)));
-    new JoystickButton(m_driverController, Button.kA.value)
+    /*/new JoystickButton(m_driverController, Button.kA.value)
         .onTrue(getAutonomousCommand()); 
-    }
+    /*/ //test in auton mode, not with buttons 
+  }
     
 
 
@@ -113,7 +118,7 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  public Command getAutonomousCommand() {
+  public Command FollowTrajectory(Trajectory trajectory) {
     // Create a voltage constraint to ensure we don't accelerate too fast
     var autoVoltageConstraint =
         new DifferentialDriveVoltageConstraint(
@@ -148,7 +153,7 @@ public class RobotContainer {
 
     RamseteLogging ramseteCommand =
         new RamseteLogging(
-            exampleTrajectory,
+            trajectory,
             Component.m_robotDrive::getPose,
             new RamseteController(AutoConstants.kRamseteB, AutoConstants.kRamseteZeta),
             new SimpleMotorFeedforward(
@@ -165,7 +170,7 @@ public class RobotContainer {
 
     // Reset odometry to the starting pose of the trajectory.
 
-    Component.m_robotDrive.resetOdometry(exampleTrajectory.getInitialPose());
+    Component.m_robotDrive.resetOdometry(trajectory.getInitialPose());
     
     
     ArrayList<ArrayList> TrajectoryData = new ArrayList<ArrayList>(); 
@@ -189,7 +194,16 @@ public class RobotContainer {
 
 // Run path following command, then stop at the end.
 return ramseteCommand.andThen(() -> Component.m_robotDrive.tankDriveVolts(0, 0));
-  
+  }
 
+
+  public Command getAutonomousCommand(ArrayList<Trajectory> trajectories) {
+    SequentialCommandGroup auton =  new SequentialCommandGroup();
+    for (Trajectory trajectory : trajectories){
+        auton.addCommands(FollowTrajectory(trajectory));
+    } //just follows a list of trajectories
+    return auton;
+    
 }
+
 }
