@@ -9,6 +9,7 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.wpilibj.CAN;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -19,10 +20,13 @@ import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.SerialPort;
+
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
+import frc.robot.CANTalonEncoder;
 import frc.robot.RobotContainer;
 
 
@@ -52,18 +56,15 @@ public class DriveSubsystem extends SubsystemBase {
   // private final ManualTalonEncoderLmao m_rightEncoder =
   //     new ManualTalonEncoderLmao(
   //         RobotContainer.Component.rightATalonFX, 2);
-  private final Encoder m_leftEncoder =
-  new Encoder(
-      DriveConstants.kLeftEncoderPorts[0],
-      DriveConstants.kLeftEncoderPorts[1],
-      DriveConstants.kLeftEncoderReversed);
+  
+  private final CANTalonEncoder m_leftEncoder =
+  new CANTalonEncoder(
+      "leftWheel", RobotContainer.Component.leftATalonFX, true, DriveConstants.kEncoderDistancePerPulse, FeedbackDevice.IntegratedSensor);
 
 // The right-side drive encoder
-private final Encoder m_rightEncoder =
-  new Encoder(
-      DriveConstants.kRightEncoderPorts[0],
-      DriveConstants.kRightEncoderPorts[1],
-      DriveConstants.kRightEncoderReversed);
+private final CANTalonEncoder m_rightEncoder =
+  new CANTalonEncoder(
+    "leftWheel", RobotContainer.Component.rightATalonFX, false, DriveConstants.kEncoderDistancePerPulse, FeedbackDevice.IntegratedSensor);
 
   // The gyro sensor 
   // private final AHRS m_gyro = new AHRS(SerialPort.Port.kMXP); //TODO: might break
@@ -169,7 +170,7 @@ private final Encoder m_rightEncoder =
    *
    * @return the left drive encoder
    */
-  public Encoder getLeftEncoder() {
+  public CANTalonEncoder getLeftEncoder() {
     return m_leftEncoder;
   }
 
@@ -178,7 +179,7 @@ private final Encoder m_rightEncoder =
    *c
    * @return the right drive encoder
    */
-  public Encoder getRightEncoder() {
+  public CANTalonEncoder getRightEncoder() {
     return m_rightEncoder;
   }
 
