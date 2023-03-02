@@ -68,7 +68,7 @@ private final CANTalonEncoder m_rightEncoder =
 
   // The gyro sensor 
   // private final AHRS m_gyro = new AHRS(SerialPort.Port.kMXP); //TODO: might break
-  private final AHRS m_gyro = new AHRS(I2C.Port.kMXP); //TODO: might break
+  public final AHRS m_gyro = new AHRS(I2C.Port.kMXP); //TODO: might break
 
 
   // Odometry class for tracking robot pose

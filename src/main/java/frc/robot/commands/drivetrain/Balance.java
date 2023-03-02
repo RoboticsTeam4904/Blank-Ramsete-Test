@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane.SystemMenuBar;
-
 import com.kauailabs.navx.AHRSProtocol.AHRSUpdateBase;
 import com.kauailabs.navx.frc.AHRS;
 import com.kauailabs.navx.frc.ITimestampedDataSubscriber;
@@ -17,8 +15,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
- import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.networktables.BooleanArrayEntry;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class Balance extends CommandBase {
@@ -37,15 +35,16 @@ public class Balance extends CommandBase {
 
     private double initial_timestamp;
     private boolean onRamp = false;
+    private boolean balanced = false;
 
     private boolean logging = false;
-    public Balance(AHRS gryo, SimpleMotorFeedforward feedforward, PIDController left, PIDController right, Supplier<DifferentialDriveWheelSpeeds> wheelSpeeds, BiConsumer<Double, Double> outputVolts, double maxAccel, double maxVelocity) {
+    public Balance(AHRS gyro, SimpleMotorFeedforward feedforward, PIDController left, PIDController right, Supplier<DifferentialDriveWheelSpeeds> wheelSpeeds, BiConsumer<Double, Double> outputVolts, double maxAccel, double maxVelocity) {
         this.profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(maxAccel, 0), new TrapezoidProfile.State(0, 0), new TrapezoidProfile.State(maxVelocity, maxAccel));
 
         this.feedforward = feedforward;
         this.closedLeft = left;
         this.closedRight = right;
-        this.gyro = gryo;
+        this.gyro = gyro;
 
         this.wheelSpeeds = wheelSpeeds;
         this.outputVolts = outputVolts;
@@ -72,8 +71,10 @@ public class Balance extends CommandBase {
 
         if (logging) {
             System.out.println(elapsed_time);
+            System.out.println(onRamp);
+            System.out.println(balanced);
         }
-        
+
         double leftOutput = closedLeft.calculate(wheelSpeeds.get().leftMetersPerSecond, setpoint)
                             + feedforward.calculate(setpoint);
         double rightOutput = closedRight.calculate(wheelSpeeds.get().rightMetersPerSecond, setpoint)
@@ -89,10 +90,12 @@ public class Balance extends CommandBase {
     @Override
     public boolean isFinished() {
         if (onRamp && gyro.getPitch() < RAMP_BALANCE_TOLERANCE) {
-            return true;
-        } else {
-            return false;
-        }
+            balanced = true;
+            // return true;
+        } //else {
+        //     return false;
+        // }
+        return false;
     }
 
     @Override
