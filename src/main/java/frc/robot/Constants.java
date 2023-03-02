@@ -18,17 +18,17 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
  */
 public final class Constants {
   public static final class DriveConstants {
-    public static final int kLeftMotor1Port = 3;
-    public static final int kLeftMotor2Port = 5;
-    public static final int kRightMotor1Port = 2;
+    public static final int kLeftMotor1Port = 1;
+    public static final int kLeftMotor2Port = 2;
+    public static final int kRightMotor1Port = 3;
     public static final int kRightMotor2Port = 4;
 
-    public static final int[] kLeftEncoderPorts = new int[] {3, 5};
-    public static final int[] kRightEncoderPorts = new int[] {2, 4};
+    public static final int[] kLeftEncoderPorts = new int[] {1, 2};
+    public static final int[] kRightEncoderPorts = new int[] {3, 4};
     public static final boolean kLeftEncoderReversed = true;
     public static final boolean kRightEncoderReversed = false;
 
-    public static final double kTrackwidthMeters = 0.50367;
+    public static final double kTrackwidthMeters = 0.52469;
     public static final DifferentialDriveKinematics kDriveKinematics =
         new DifferentialDriveKinematics(kTrackwidthMeters);
 
@@ -43,12 +43,12 @@ public final class Constants {
     // for *your* robot's drive.
     // The Robot Characterization Toolsuite provides a convenient tool for obtaining these
     // values for your robot.
-    public static final double ksVolts = 0.027395; 
-    public static final double kvVoltSecondsPerMeter = 4.7873; 
-    public static final double kaVoltSecondsSquaredPerMeter = 0.25289; 
+    public static final double ksVolts = 0.14142; 
+    public static final double kvVoltSecondsPerMeter = 4.1305; 
+    public static final double kaVoltSecondsSquaredPerMeter = 0.33397; 
 
     // Example value only - as above, this must be tuned for your drive!
-    public static final double kPDriveVel = 0.049489;
+    public static final double kPDriveVel = 0.44424;
   }
 
   public static final class OIConstants {
@@ -56,7 +56,7 @@ public final class Constants {
   }
 
   public static final class AutoConstants {
-    public static final double kMaxSpeedMetersPerSecond = 1.25; 
+    public static final double kMaxSpeedMetersPerSecond = 0.25; 
     public static final double kMaxAccelerationMetersPerSecondSquared = 1;
 
     // Reasonable baseline values for a RAMSETE follower in units of meters and seconds
