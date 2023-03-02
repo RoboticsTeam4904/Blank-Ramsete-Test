@@ -70,21 +70,32 @@ public class Balance extends CommandBase {
         double elapsed_time = (Timer.getFPGATimestamp() - initial_timestamp);
         double setpoint = profile.calculate(elapsed_time).position;
 
-        if (logging) {
-            // SmartDashboard.putBoolean("on ramp", onRamp);
-            // SmartDashboard.putNumber("elapsed", elapsed_time);
-            // SmartDashboard.putBoolean("balanced", balanced);
-            System.out.println(elapsed_time);
-            System.out.println(onRamp);
-            System.out.println(balanced);
-        }
-
         double leftOutput = closedLeft.calculate(wheelSpeeds.get().leftMetersPerSecond, setpoint)
                             + feedforward.calculate(setpoint);
         double rightOutput = closedRight.calculate(wheelSpeeds.get().rightMetersPerSecond, setpoint)
                             + feedforward.calculate(setpoint);
 
         outputVolts.accept(leftOutput, rightOutput);
+        
+        if (logging) {
+            // SmartDashboard.putBoolean("on ramp", onRamp);
+            // SmartDashboard.putNumber("elapsed", elapsed_time);
+            // SmartDashboard.putBoolean("balanced", balanced);
+            // SmartDashboard.putNumber("left wheel speed", wheelSpeeds.get().leftMetersPerSecond);
+            // SmartDashboard.putNumber("right wheel speed", wheelSpeeds.get().rightMetersPerSecond);
+           
+            // SmartDashboard.putNumber("left difference speed", wheelSpeeds.get().leftMetersPerSecond - setpoint);
+            // SmartDashboard.putNumber("right difference speed", wheelSpeeds.get().rightMetersPerSecond - setpoint);
+
+
+            System.out.println(elapsed_time);
+            System.out.println(onRamp);
+            System.out.println(balanced);
+            
+            System.out.println("left difference speed " +  (wheelSpeeds.get().leftMetersPerSecond - setpoint));
+            System.out.println("right difference speed " +  (wheelSpeeds.get().rightMetersPerSecond - setpoint));
+        }
+
 
         if (gyro.getPitch() > RAMP_START_ANGLE && !onRamp) {
             onRamp = true;
