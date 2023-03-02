@@ -17,6 +17,7 @@ import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.networktables.BooleanArrayEntry;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class Balance extends CommandBase {
@@ -66,10 +67,13 @@ public class Balance extends CommandBase {
 
     @Override
     public void execute() {
-        double elapsed_time = (Timer.getFPGATimestamp() - initial_timestamp) / 1000.0;
+        double elapsed_time = (Timer.getFPGATimestamp() - initial_timestamp);
         double setpoint = profile.calculate(elapsed_time).position;
 
         if (logging) {
+            // SmartDashboard.putBoolean("on ramp", onRamp);
+            // SmartDashboard.putNumber("elapsed", elapsed_time);
+            // SmartDashboard.putBoolean("balanced", balanced);
             System.out.println(elapsed_time);
             System.out.println(onRamp);
             System.out.println(balanced);
