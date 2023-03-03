@@ -19,6 +19,7 @@ import edu.wpi.first.networktables.BooleanArrayEntry;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 
 public class Balance extends CommandBase {
     public static ArrayList<Pair<Long, Float>> debugObject = new ArrayList<Pair<Long, Float>>();
@@ -39,7 +40,8 @@ public class Balance extends CommandBase {
     private boolean balanced = false;
 
     private boolean logging = false;
-    public Balance(AHRS gyro, SimpleMotorFeedforward feedforward, PIDController left, PIDController right, Supplier<DifferentialDriveWheelSpeeds> wheelSpeeds, BiConsumer<Double, Double> outputVolts, double maxAccel, double maxVelocity) {
+    public Balance(AHRS gyro, SimpleMotorFeedforward feedforward, PIDController left, PIDController right, Supplier<DifferentialDriveWheelSpeeds> wheelSpeeds, BiConsumer<Double, Double> outputVolts, double maxAccel, double maxVelocity, Subsystem... requirements) {
+        addRequirements(requirements);
         this.profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(maxAccel, 0), new TrapezoidProfile.State(0, 0), new TrapezoidProfile.State(maxVelocity, maxAccel));
 
         this.feedforward = feedforward;
@@ -58,7 +60,7 @@ public class Balance extends CommandBase {
             gyro.registerCallback(new ITimestampedDataSubscriber() {
                 @Override
                 public void timestampedDataReceived(long system_timestamp, long sensor_timestamp, AHRSUpdateBase sensor_data, Object object) {
-                    System.out.println("I am living in your walls");
+                    // System.out.println("I am living in your walls");
                     Balance.debugObject.add(new Pair<Long, Float>(system_timestamp, sensor_data.pitch));
                 }
             }, new Object());
@@ -69,12 +71,13 @@ public class Balance extends CommandBase {
     public void execute() {
         double elapsed_time = (Timer.getFPGATimestamp() - initial_timestamp);
         double setpoint = profile.calculate(elapsed_time).position;
+        DifferentialDriveWheelSpeeds currentWheelspeeds = wheelSpeeds.get();
 
-        double leftOutput = closedLeft.calculate(wheelSpeeds.get().leftMetersPerSecond, setpoint)
+        double leftOutput = closedLeft.calculate(currentWheelspeeds.leftMetersPerSecond, setpoint)
                             + feedforward.calculate(setpoint);
-        double rightOutput = closedRight.calculate(wheelSpeeds.get().rightMetersPerSecond, setpoint)
+        double rightOutput = closedRight.calculate(currentWheelspeeds.rightMetersPerSecond, setpoint)
                             + feedforward.calculate(setpoint);
-
+    
         outputVolts.accept(leftOutput, rightOutput);
         
         if (logging) {
@@ -91,20 +94,21 @@ public class Balance extends CommandBase {
             System.out.println(elapsed_time);
             System.out.println(onRamp);
             System.out.println(balanced);
-            
+
+
             System.out.println("left difference speed " +  (wheelSpeeds.get().leftMetersPerSecond - setpoint));
             System.out.println("right difference speed " +  (wheelSpeeds.get().rightMetersPerSecond - setpoint));
         }
 
 
-        if (gyro.getPitch() > RAMP_START_ANGLE && !onRamp) {
+        if (gyro.getPitch() > Math.abs(RAMP_START_ANGLE) && !onRamp) {
             onRamp = true;
         }
     }
 
     @Override
     public boolean isFinished() {
-        if (onRamp && gyro.getPitch() < RAMP_BALANCE_TOLERANCE) {
+        if (onRamp && Math.abs(gyro.getPitch()) < RAMP_BALANCE_TOLERANCE) {
             balanced = true;
             // return true;
         } //else {
@@ -117,7 +121,7 @@ public class Balance extends CommandBase {
     public void end(boolean interrupted) {
         if (logging) {
             try {
-                FileWriter file = new FileWriter("~/gyrolog.json");
+                FileWriter file = new FileWriter("gyrolog.json");
                 file.write(Balance.debugObject.toString());
                 file.close();
             } catch (IOException e) {
