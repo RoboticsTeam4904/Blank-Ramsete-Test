@@ -90,10 +90,10 @@ public class Balance extends CommandBase {
             // SmartDashboard.putNumber("left difference speed", wheelSpeeds.get().leftMetersPerSecond - setpoint);
             // SmartDashboard.putNumber("right difference speed", wheelSpeeds.get().rightMetersPerSecond - setpoint);
 
-
-            System.out.println(elapsed_time);
-            System.out.println(onRamp);
-            System.out.println(balanced);
+            System.out.println("Setpoint" + setpoint);
+            // System.out.println(elapsed_time);
+            // System.out.println(onRamp);
+            // System.out.println(balanced);
 
 
             System.out.println("left difference speed " +  (wheelSpeeds.get().leftMetersPerSecond - setpoint));
