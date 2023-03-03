@@ -67,11 +67,11 @@ public class Robot extends TimedRobot {
             DriveConstants.ksVolts,
             DriveConstants.kvVoltSecondsPerMeter,
             DriveConstants.kaVoltSecondsSquaredPerMeter),
-    new PIDController(DriveConstants.kPDriveVel, 0, 0),
-    new PIDController(DriveConstants.kPDriveVel, 0, 0),
+    new PIDController(DriveConstants.kPDriveVel, 0.1, 0.00001),
+    new PIDController(DriveConstants.kPDriveVel, 0.1, 0.00001),
     m_robotContainer.m_robotDrive::getWheelSpeeds,
     // RamseteCommand passes volts to the callback
-    m_robotContainer.m_robotDrive::tankDriveVolts, 0.5, 0.1);
+    m_robotContainer.m_robotDrive::tankDriveVolts, 0.5, 0.1, m_robotContainer.m_robotDrive);
     //m_robotContainer.getAutonomousCommand();
 
     /*

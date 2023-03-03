@@ -23,7 +23,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 
 public class Balance extends CommandBase {
     public static ArrayList<Pair<Long, Float>> debugObject = new ArrayList<Pair<Long, Float>>();
-    private static float RAMP_START_ANGLE = 10.0f;
+    private static float RAMP_START_ANGLE = 9.0f;
     private static float RAMP_BALANCE_TOLERANCE = 4.0f;
 
     private final SimpleMotorFeedforward feedforward;
@@ -39,10 +39,10 @@ public class Balance extends CommandBase {
     private boolean onRamp = false;
     private boolean balanced = false;
 
-    private boolean logging = false;
+    private boolean logging = true;
     public Balance(AHRS gyro, SimpleMotorFeedforward feedforward, PIDController left, PIDController right, Supplier<DifferentialDriveWheelSpeeds> wheelSpeeds, BiConsumer<Double, Double> outputVolts, double maxAccel, double maxVelocity, Subsystem... requirements) {
         addRequirements(requirements);
-        this.profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(maxAccel, 0), new TrapezoidProfile.State(0, 0), new TrapezoidProfile.State(maxVelocity, maxAccel));
+        this.profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(maxAccel, 0), new TrapezoidProfile.State(maxVelocity, maxAccel), new TrapezoidProfile.State(0, 0));
 
         this.feedforward = feedforward;
         this.closedLeft = left;
@@ -73,24 +73,26 @@ public class Balance extends CommandBase {
         double setpoint = profile.calculate(elapsed_time).position;
         DifferentialDriveWheelSpeeds currentWheelspeeds = wheelSpeeds.get();
 
-        double leftOutput = closedLeft.calculate(currentWheelspeeds.leftMetersPerSecond, setpoint)
-                            + feedforward.calculate(setpoint);
-        double rightOutput = closedRight.calculate(currentWheelspeeds.rightMetersPerSecond, setpoint)
-                            + feedforward.calculate(setpoint);
+        double leftOutput  = closedLeft .calculate(currentWheelspeeds.leftMetersPerSecond, setpoint);
+                            // + feedforward.calculate(setpoint);
+        double rightOutput = closedRight.calculate(currentWheelspeeds.rightMetersPerSecond, setpoint);
+                            // + feedforward.calculate(setpoint);
     
         outputVolts.accept(leftOutput, rightOutput);
-        
         if (logging) {
-            // SmartDashboard.putBoolean("on ramp", onRamp);
-            // SmartDashboard.putNumber("elapsed", elapsed_time);
-            // SmartDashboard.putBoolean("balanced", balanced);
-            // SmartDashboard.putNumber("left wheel speed", wheelSpeeds.get().leftMetersPerSecond);
-            // SmartDashboard.putNumber("right wheel speed", wheelSpeeds.get().rightMetersPerSecond);
+            SmartDashboard.putBoolean("on ramp", onRamp);
+            SmartDashboard.putNumber(
+                "elapsed", elapsed_time);
+            SmartDashboard.putBoolean("balanced", balanced);
+            SmartDashboard.putNumber("pitch", Math.abs(gyro.getPitch()));
+            SmartDashboard.putNumber("left wheel speed", wheelSpeeds.get().leftMetersPerSecond);
+            SmartDashboard.putNumber("right wheel speed", wheelSpeeds.get().rightMetersPerSecond);
            
-            // SmartDashboard.putNumber("left difference speed", wheelSpeeds.get().leftMetersPerSecond - setpoint);
-            // SmartDashboard.putNumber("right difference speed", wheelSpeeds.get().rightMetersPerSecond - setpoint);
+            SmartDashboard.putNumber("left difference speed", wheelSpeeds.get().leftMetersPerSecond - setpoint);
+            SmartDashboard.putNumber("right difference speed", wheelSpeeds.get().rightMetersPerSecond - setpoint);
 
             System.out.println("Setpoint" + setpoint);
+            System.out.println();
             // System.out.println(elapsed_time);
             // System.out.println(onRamp);
             // System.out.println(balanced);
@@ -101,7 +103,7 @@ public class Balance extends CommandBase {
         }
 
 
-        if (gyro.getPitch() > Math.abs(RAMP_START_ANGLE) && !onRamp) {
+        if (Math.abs(gyro.getPitch()) > RAMP_START_ANGLE && !onRamp) {
             onRamp = true;
         }
     }
