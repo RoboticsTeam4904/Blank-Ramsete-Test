@@ -4,9 +4,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.DriveConstants;
+import frc.robot.commands.drivetrain.Balance;
+import frc.robot.subsystems.DriveSubsystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -56,7 +61,18 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    
+    m_autonomousCommand =  new Balance(m_robotContainer.m_robotDrive.m_gyro,
+    new SimpleMotorFeedforward(
+            DriveConstants.ksVolts,
+            DriveConstants.kvVoltSecondsPerMeter,
+            DriveConstants.kaVoltSecondsSquaredPerMeter),
+    new PIDController(DriveConstants.kPDriveVel, 0.1, 0.00001),
+    new PIDController(DriveConstants.kPDriveVel, 0.1, 0.00001),
+    m_robotContainer.m_robotDrive::getWheelSpeeds,
+    // RamseteCommand passes volts to the callback
+    m_robotContainer.m_robotDrive::tankDriveVolts, 0.5, 0.1, m_robotContainer.m_robotDrive);
+    //m_robotContainer.getAutonomousCommand();
 
     /*
      * String autoSelected = SmartDashboard.getString("Auto Selector",
