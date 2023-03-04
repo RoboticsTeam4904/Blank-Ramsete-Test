@@ -28,13 +28,15 @@ public final class Constants {
     public static final boolean kLeftEncoderReversed = true;
     public static final boolean kRightEncoderReversed = false;
 
-    public static final double kTrackwidthMeters = 0.50367;
+    public static final double kTrackwidthMeters = 0.50367; //blinky's track width
     public static final DifferentialDriveKinematics kDriveKinematics =
         new DifferentialDriveKinematics(kTrackwidthMeters);
 
     public static final int kEncoderCPR = 2048;
     public static final double kWheelDiameterMeters = 0.1016;
-    public static final double kEncoderDistancePerPulse = 0.3203 / kEncoderCPR;
+    public static final double gearRatio = 69/5;
+    //using blinky gear ratio
+    public static final double kEncoderDistancePerPulse = kWheelDiameterMeters*Math.PI / kEncoderCPR / gearRatio;
         // Assumes the encoders are directly mounted on the wheel shafts
         // (kWheelDiameterMeters * Math.PI) / (double) kEncoderCPR / 17;
 
