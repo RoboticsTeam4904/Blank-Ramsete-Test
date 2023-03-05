@@ -40,17 +40,10 @@ public final class Constants {
         // Assumes the encoders are directly mounted on the wheel shafts
         // (kWheelDiameterMeters * Math.PI) / (double) kEncoderCPR / 17;
 
-    // These are example values only - DO NOT USE THESE FOR YOUR OWN ROBOT!
-    // These characterization values MUST be determined either experimentally or theoretically
-    // for *your* robot's drive.
-    // The Robot Characterization Toolsuite provides a convenient tool for obtaining these
-    // values for your robot.
-    public static final double ksVolts = 0.027395; 
-    public static final double kvVoltSecondsPerMeter = 4.7873; 
-    public static final double kaVoltSecondsSquaredPerMeter = 0.25289; 
-
-    // Example value only - as above, this must be tuned for your drive!
-    public static final double kPDriveVel = 0.049489;
+    public static final double ksVolts = 0.0081094; //old is 0.27395 
+    public static final double kvVoltSecondsPerMeter = 4.7873; //was consistent between the two
+    public static final double kaVoltSecondsSquaredPerMeter = 0.13655; //old is 0.25289
+    public static final double kPDriveVel = 0.1771; //old is 0.049489
   }
 
   public static final class OIConstants {
