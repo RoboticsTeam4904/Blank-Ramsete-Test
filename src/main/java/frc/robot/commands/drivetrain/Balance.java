@@ -38,16 +38,21 @@ public class Balance extends CommandBase {
     private double initial_timestamp;
     private boolean onRamp = false;
     private boolean balanced = false;
+    private double max_velocity;
+    private boolean ACCELmode = false;
+    private DifferentialDriveWheelSpeeds prevWheelSpeed;
+    private static double s_setpoint;
 
     private boolean logging = true;
     public Balance(AHRS gyro, SimpleMotorFeedforward feedforward, PIDController left, PIDController right, Supplier<DifferentialDriveWheelSpeeds> wheelSpeeds, BiConsumer<Double, Double> outputVolts, double maxAccel, double maxVelocity, Subsystem... requirements) {
         addRequirements(requirements);
         this.profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(maxAccel, 0), new TrapezoidProfile.State(maxVelocity, maxAccel), new TrapezoidProfile.State(0, 0));
-
+        this.s_setpoint = max_velocity;
         this.feedforward = feedforward;
         this.closedLeft = left;
         this.closedRight = right;
         this.gyro = gyro;
+        this.max_velocity = maxVelocity;
 
         this.wheelSpeeds = wheelSpeeds;
         this.outputVolts = outputVolts;
@@ -70,7 +75,8 @@ public class Balance extends CommandBase {
     @Override
     public void execute() {
         double elapsed_time = (Timer.getFPGATimestamp() - initial_timestamp);
-        double setpoint = profile.calculate(elapsed_time).position;
+        double setpoint = max_velocity;
+        // double setpoint = profile.calculate(elapsed_time).position;
         DifferentialDriveWheelSpeeds currentWheelspeeds = wheelSpeeds.get();
 
         double leftOutput  = closedLeft .calculate(currentWheelspeeds.leftMetersPerSecond, setpoint);
@@ -85,12 +91,17 @@ public class Balance extends CommandBase {
                 "elapsed", elapsed_time);
             SmartDashboard.putBoolean("balanced", balanced);
             SmartDashboard.putNumber("pitch", Math.abs(gyro.getPitch()));
-            SmartDashboard.putNumber("left wheel speed", wheelSpeeds.get().leftMetersPerSecond);
-            SmartDashboard.putNumber("right wheel speed", wheelSpeeds.get().rightMetersPerSecond);
+            SmartDashboard.putNumber("left wheel speed", currentWheelspeeds.leftMetersPerSecond);
+            SmartDashboard.putNumber("right wheel speed", currentWheelspeeds.rightMetersPerSecond);
+            SmartDashboard.putNumber("setpoint", setpoint);
            
-            SmartDashboard.putNumber("left difference speed", wheelSpeeds.get().leftMetersPerSecond - setpoint);
-            SmartDashboard.putNumber("right difference speed", wheelSpeeds.get().rightMetersPerSecond - setpoint);
+            SmartDashboard.putNumber("left difference speed", currentWheelspeeds.leftMetersPerSecond - setpoint);
+            SmartDashboard.putNumber("right difference speed", currentWheelspeeds.rightMetersPerSecond - setpoint);
 
+            if (ACCELmode) {
+                SmartDashboard.putNumber("left acceleration", (currentWheelspeeds.leftMetersPerSecond-prevWheelSpeed.leftMetersPerSecond)/elapsed_time);
+                SmartDashboard.putNumber("right acceleration", (currentWheelspeeds.rightMetersPerSecond-prevWheelSpeed.rightMetersPerSecond)/elapsed_time);
+            }
             System.out.println("Setpoint" + setpoint);
             System.out.println();
             // System.out.println(elapsed_time);
@@ -106,6 +117,7 @@ public class Balance extends CommandBase {
         if (Math.abs(gyro.getPitch()) > RAMP_START_ANGLE && !onRamp) {
             onRamp = true;
         }
+        prevWheelSpeed = currentWheelspeeds;
     }
 
     @Override
