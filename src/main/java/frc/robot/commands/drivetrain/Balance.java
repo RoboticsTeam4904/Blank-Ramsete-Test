@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
+import com.apple.laf.resources.aqua;
 import com.kauailabs.navx.AHRSProtocol.AHRSUpdateBase;
 import com.kauailabs.navx.frc.AHRS;
 import com.kauailabs.navx.frc.ITimestampedDataSubscriber;
@@ -23,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 
 public class Balance extends CommandBase {
     public static ArrayList<Pair<Long, Float>> debugObject = new ArrayList<Pair<Long, Float>>();
+    public static ArrayList<ArrayList> VelocityDebug = new ArrayList<ArrayList>();
     private static float RAMP_START_ANGLE = 9.0f;
     private static float RAMP_BALANCE_TOLERANCE = 4.0f;
 
@@ -34,6 +36,14 @@ public class Balance extends CommandBase {
 
     private final Supplier<DifferentialDriveWheelSpeeds> wheelSpeeds;
     private final BiConsumer<Double, Double> outputVolts;
+
+    static double initial_timestamp_system = 0;
+    static double prevtime = 0;
+    static DifferentialDriveWheelSpeeds prevSpeed = new DifferentialDriveWheelSpeeds();
+    static DifferentialDriveWheelSpeeds speed = new DifferentialDriveWheelSpeeds();
+
+
+
 
     private double initial_timestamp;
     private boolean onRamp = false;
@@ -61,12 +71,34 @@ public class Balance extends CommandBase {
     @Override
     public void initialize() {
         initial_timestamp = Timer.getFPGATimestamp();
+        ArrayList<String> titles = new ArrayList<String>();
+        titles.add("System Time");
+        titles.add("Right Wheel Speed");
+        titles.add("Left Wheel Speed");
+        titles.add("Setpoint");
+        titles.add("Right Acceleration");
+        titles.add("Left Acceleration");
+        Balance.VelocityDebug.add(titles);
         if (logging) {
             gyro.registerCallback(new ITimestampedDataSubscriber() {
                 @Override
                 public void timestampedDataReceived(long system_timestamp, long sensor_timestamp, AHRSUpdateBase sensor_data, Object object) {
                     // System.out.println("I am living in your walls");
                     Balance.debugObject.add(new Pair<Long, Float>(system_timestamp, sensor_data.pitch));
+                    if (initial_timestamp_system==0){
+                        initial_timestamp_system = (double) system_timestamp; 
+                    }
+                    prevSpeed = speed;
+                    speed = wheelSpeeds.get();
+                    ArrayList<Double> velocities = new ArrayList<Double>();
+                    velocities.add(initial_timestamp_system - (double) system_timestamp);
+                    velocities.add(speed.rightMetersPerSecond);
+                    velocities.add(speed.leftMetersPerSecond);
+                    velocities.add(s_setpoint);
+                    velocities.add((speed.leftMetersPerSecond-prevSpeed.leftMetersPerSecond)/(system_timestamp-prevtime));
+                    velocities.add((speed.rightMetersPerSecond-prevSpeed.rightMetersPerSecond)/(system_timestamp-prevtime));
+                    Balance.VelocityDebug.add(velocities);
+                    prevtime = (double) system_timestamp;
                 }
             }, new Object());
         }
@@ -101,6 +133,7 @@ public class Balance extends CommandBase {
             if (ACCELmode) {
                 SmartDashboard.putNumber("left acceleration", (currentWheelspeeds.leftMetersPerSecond-prevWheelSpeed.leftMetersPerSecond)/elapsed_time);
                 SmartDashboard.putNumber("right acceleration", (currentWheelspeeds.rightMetersPerSecond-prevWheelSpeed.rightMetersPerSecond)/elapsed_time);
+
             }
             System.out.println("Setpoint" + setpoint);
             System.out.println();
@@ -137,6 +170,13 @@ public class Balance extends CommandBase {
             try {
                 FileWriter file = new FileWriter("gyrolog.json");
                 file.write(Balance.debugObject.toString());
+                file.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                FileWriter file = new FileWriter("speedLog.json");
+                file.write(Balance.VelocityDebug.toString());
                 file.close();
             } catch (IOException e) {
                 e.printStackTrace();
