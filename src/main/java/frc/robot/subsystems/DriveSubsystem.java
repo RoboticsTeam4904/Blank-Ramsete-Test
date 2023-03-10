@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import frc.robot.Constants.DriveConstants;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
@@ -27,8 +28,6 @@ import frc.robot.RobotContainer;
 
 
 public class DriveSubsystem extends SubsystemBase {
-  
-
   // The motors on the left side of the drive.
   private final MotorControllerGroup m_leftMotors = //motors need to be talons
       new MotorControllerGroup(
@@ -45,21 +44,31 @@ public class DriveSubsystem extends SubsystemBase {
   private final DifferentialDrive m_drive = new DifferentialDrive(m_leftMotors, m_rightMotors);
 
   // The left-side drive encoder
-  private final Encoder m_leftEncoder =
-      new Encoder(
-          DriveConstants.kLeftEncoderPorts[0],
-          DriveConstants.kLeftEncoderPorts[1],
-          DriveConstants.kLeftEncoderReversed);
+  // private final ManualTalonEncoderLmao m_leftEncoder =
+  //     new ManualTalonEncoderLmao(
+  //         RobotContainer.Component.leftATalonFX, 1);
 
-  // The right-side drive encoder
-  private final Encoder m_rightEncoder =
-      new Encoder(
-          DriveConstants.kRightEncoderPorts[0],
-          DriveConstants.kRightEncoderPorts[1],
-          DriveConstants.kRightEncoderReversed);
+  // // The right-side drive encoder
+  // private final ManualTalonEncoderLmao m_rightEncoder =
+  //     new ManualTalonEncoderLmao(
+  //         RobotContainer.Component.rightATalonFX, 2);
+  private final Encoder m_leftEncoder =
+  new Encoder(
+      DriveConstants.kLeftEncoderPorts[0],
+      DriveConstants.kLeftEncoderPorts[1],
+      DriveConstants.kLeftEncoderReversed);
+
+// The right-side drive encoder
+private final Encoder m_rightEncoder =
+  new Encoder(
+      DriveConstants.kRightEncoderPorts[0],
+      DriveConstants.kRightEncoderPorts[1],
+      DriveConstants.kRightEncoderReversed);
 
   // The gyro sensor 
-  private final AHRS m_gyro = new AHRS(SerialPort.Port.kMXP); //TODO: might break
+  // private final AHRS m_gyro = new AHRS(SerialPort.Port.kMXP); //TODO: might break
+  private final AHRS m_gyro = new AHRS(I2C.Port.kMXP); //TODO: might break
+
 
   // Odometry class for tracking robot pose
   private final DifferentialDriveOdometry m_odometry;
@@ -85,6 +94,8 @@ public class DriveSubsystem extends SubsystemBase {
     // Update the odometry in the periodic block
     m_odometry.update(
         m_gyro.getRotation2d(), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
+        // m_leftEncoder.debug();
+        // m_rightEncoder.debug();
   }
 
   /**
@@ -164,7 +175,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   /**
    * Gets the right drive encoder.
-   *
+   *c
    * @return the right drive encoder
    */
   public Encoder getRightEncoder() {
