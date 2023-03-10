@@ -17,6 +17,7 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
@@ -84,8 +85,8 @@ public class RobotContainer {
 
                 // Configure default commands
                 // Set the default drive command to split-stick arcade drive
-                m_robotDrive.setDefaultCommand(
-                                new RunCommand(() -> System.out.println("I am inside your home"), m_robotDrive));
+                //m_robotDrive.setDefaultCommand(
+                //                new RunCommand(() -> System.out.println("I am inside your home"), m_robotDrive));
                 // // A split-stick arcade command, with forward/backward controlled by the left
                 // // hand, and turning controlled by the right.
                 // new RunCommand(
@@ -126,7 +127,7 @@ public class RobotContainer {
                         DriveConstants.kvVoltSecondsPerMeter,
                         DriveConstants.kaVoltSecondsSquaredPerMeter),
                 DriveConstants.kDriveKinematics,
-                5);
+                10);
 
         // Create config for trajectory
         TrajectoryConfig config = new TrajectoryConfig(
@@ -137,6 +138,7 @@ public class RobotContainer {
                 // Apply the voltage constraint
                 .addConstraint(autoVoltageConstraint);
 
+
         final double dist = 1;
 
         // An example trajectory to follow. All units in meters.
@@ -145,10 +147,10 @@ public class RobotContainer {
                 new Pose2d(0, 0, new Rotation2d(0)),
                 // Pass through these two interior waypoints, making an 's' curve path
                 // List.of(new Translation2d(0.33*dist, .15*dist), new Translation2d(0.66*dist, -.15*dist)),
-                List.of(new Translation2d(0.5*dist, 0)),
+                List.of(new Translation2d(2, -2), new Translation2d(4, -2)),
 
                 // End 3 meters straight ahead of where we started, facing forward
-                new Pose2d(1*dist, 0, new Rotation2d(0)),
+                new Pose2d(4, 0, new Rotation2d(Math.PI/2)),
                 // Pass config
                 config);        
         System.out.println(this.m_robotDrive.toString());
@@ -170,7 +172,9 @@ public class RobotContainer {
                 m_robotDrive);
 
         // Reset odometry to the starting pose of the trajectory.
-        m_robotDrive.resetOdometry(exampleTrajectory.getInitialPose());
+        Pose2d initialPose = exampleTrajectory.getInitialPose();
+        m_robotDrive.resetOdometry(initialPose);
+        SmartDashboard.putString("initial pose", initialPose.toString());
         // return new Gaming(m_robotDrive);
         // Run path following command, then stop at the end.
         // return Commands.run(() -> m_robotDrive.tankDriveVolts(1, 1), m_robotDrive);
