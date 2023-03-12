@@ -21,12 +21,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
+import frc.robot.commands.drivetrain.RamseteCommandDebug;
 import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -77,6 +81,12 @@ public class RobotContainer {
                 Component.rightATalonFX = new WPI_TalonFX(Constants.DriveConstants.kRightMotor1Port);
                 Component.rightBTalonFX = new WPI_TalonFX(Constants.DriveConstants.kRightMotor2Port);
 
+		
+		RobotContainer.Component.leftATalonFX.setNeutralMode(NeutralMode.Coast);
+		RobotContainer.Component.leftBTalonFX.setNeutralMode(NeutralMode.Coast);
+		RobotContainer.Component.rightATalonFX.setNeutralMode(NeutralMode.Coast);
+		RobotContainer.Component.rightBTalonFX.setNeutralMode(NeutralMode.Coast);
+
                 Component.testTalon = new WPI_TalonFX(1);
                 // Component.leftATalonFX.setInverted(true);
                 // Component.leftBTalonFX.setInverted(true);
@@ -113,6 +123,44 @@ public class RobotContainer {
                 new JoystickButton(m_driverController, Button.kA.value)
                                 .onTrue(getAutonomousCommand());
         }
+	
+	public Command getAutonomousCommand(Trajectory trajectory) {
+		RamseteCommandDebug ramseteCommand = new RamseteCommandDebug(
+		// RamseteCommand ramseteCommand = new RamseteCommand(
+			trajectory,
+			m_robotDrive::getPose,
+			new RamseteController(AutoConstants.kRamseteB, AutoConstants.kRamseteZeta),
+			new SimpleMotorFeedforward(
+				DriveConstants.ksVolts,
+				DriveConstants.kvVoltSecondsPerMeter,
+				DriveConstants.kaVoltSecondsSquaredPerMeter),
+			DriveConstants.kDriveKinematics,
+			m_robotDrive::getWheelSpeeds,
+			new PIDController(DriveConstants.kPDriveVel*4, 0, 0),
+			new PIDController(DriveConstants.kPDriveVel*4, 0, 0),
+			// RamseteCommand passes volts to the callback
+			m_robotDrive::tankDriveVolts,
+			m_robotDrive);
+	
+		// Reset odometry to the starting pose of the trajectory.
+		Pose2d initialPose = trajectory.getInitialPose();
+		m_robotDrive.resetOdometry(initialPose);
+		SmartDashboard.putString("initial pose", initialPose.toString());
+		// return new Gaming(m_robotDrive);
+		// Run path following command, then stop at the end.
+		// return Commands.run(() -> m_robotDrive.tankDriveVolts(1, 1), m_robotDrive);
+		//return Commands.runOnce(() -> m_robotDrive.arcadeDrive(0.5, 0), m_robotDrive);
+		//return Commands.runOnce(() -> Component.testTalon.setVoltage(6));
+		return ramseteCommand
+			.andThen(() -> m_robotDrive.tankDriveVolts(0, 0))
+			.andThen((new CommandBase(){}).withTimeout(2))
+			.andThen(Commands.runOnce(() -> {
+				RobotContainer.Component.leftATalonFX.setNeutralMode(NeutralMode.Coast);
+				RobotContainer.Component.leftBTalonFX.setNeutralMode(NeutralMode.Coast);
+				RobotContainer.Component.rightATalonFX.setNeutralMode(NeutralMode.Coast);
+				RobotContainer.Component.rightBTalonFX.setNeutralMode(NeutralMode.Coast);
+		}));
+	}
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -154,32 +202,6 @@ public class RobotContainer {
                 // Pass config
                 config);        
         System.out.println(this.m_robotDrive.toString());
-
-        RamseteCommand ramseteCommand = new RamseteCommand(
-                exampleTrajectory,
-                m_robotDrive::getPose,
-                new RamseteController(AutoConstants.kRamseteB, AutoConstants.kRamseteZeta),
-                new SimpleMotorFeedforward(
-                        DriveConstants.ksVolts,
-                        DriveConstants.kvVoltSecondsPerMeter,
-                        DriveConstants.kaVoltSecondsSquaredPerMeter),
-                DriveConstants.kDriveKinematics,
-                m_robotDrive::getWheelSpeeds,
-                new PIDController(0, 0, 0),
-                new PIDController(0, 0, 0),
-                // RamseteCommand passes volts to the callback
-                m_robotDrive::tankDriveVolts,
-                m_robotDrive);
-
-        // Reset odometry to the starting pose of the trajectory.
-        Pose2d initialPose = exampleTrajectory.getInitialPose();
-        m_robotDrive.resetOdometry(initialPose);
-        SmartDashboard.putString("initial pose", initialPose.toString());
-        // return new Gaming(m_robotDrive);
-        // Run path following command, then stop at the end.
-        // return Commands.run(() -> m_robotDrive.tankDriveVolts(1, 1), m_robotDrive);
-        //return Commands.runOnce(() -> m_robotDrive.arcadeDrive(0.5, 0), m_robotDrive);
-        //return Commands.runOnce(() -> Component.testTalon.setVoltage(6));
-        return ramseteCommand.andThen(() -> m_robotDrive.tankDriveVolts(0, 0));
+	return this.getAutonomousCommand(exampleTrajectory);
     }
 }

@@ -28,7 +28,8 @@ public final class Constants {
     public static final boolean kLeftEncoderReversed = true;
     public static final boolean kRightEncoderReversed = false;
 
-    public static final double kTrackwidthMeters = 0.50367; //blinky's track width
+    // public static final double kTrackwidthMeters = 0.50367; //blinky's track width
+    public static final double kTrackwidthMeters = 0.59; //blinky's track width
     public static final DifferentialDriveKinematics kDriveKinematics =
         new DifferentialDriveKinematics(kTrackwidthMeters);
 
@@ -55,7 +56,7 @@ public final class Constants {
     public static final double kMaxAccelerationMetersPerSecondSquared = 4.0;
 
     // Reasonable baseline values for a RAMSETE follower in units of meters and seconds
-    public static final double kRamseteB = 4;
-    public static final double kRamseteZeta = 0.05;
+    public static final double kRamseteB = 2;
+    public static final double kRamseteZeta = 0.1;
   }
 }
