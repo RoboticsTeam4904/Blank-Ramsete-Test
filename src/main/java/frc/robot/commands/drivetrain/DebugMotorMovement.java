@@ -15,21 +15,23 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class DebugMotorMovement extends CommandBase {
+    public static double MAGIC_NUMBER = 0.0798;
     public static double ENCODER_TICKS_TO_ROTATIONS = 1/2048;
     public static int PID_SLOT = 0;
     public WPI_TalonFX motorController;
     public String label;
     private DoubleSupplier setpointSupplier;
-    private ArmFeedforward feedforward;
+    private ElevatorFeedforward feedforward;
     private BufferedWriter writer;
     private double prev_velocity;
     private double prev_timestamp;
-    public DebugMotorMovement(String label, WPI_TalonFX motorController, DoubleSupplier setpointSupplier, ArmFeedforward feedforward) {
+    public DebugMotorMovement(String label, WPI_TalonFX motorController, DoubleSupplier setpointSupplier, ElevatorFeedforward feedforward) {
         this.motorController = motorController;
         this.label = label;
         this.setpointSupplier = setpointSupplier;
@@ -55,16 +57,16 @@ public class DebugMotorMovement extends CommandBase {
         System.out.println("MOTOR DEBUG STAT - " + this.label + " " + line);
     }
     public void execute() {
-        this.motorController.set(
-            ControlMode.Position,
+        this.motorController.setVoltage(
             this.feedforward.calculate(
-                this.motorController.getSelectedSensorPosition()*ENCODER_TICKS_TO_ROTATIONS / 2 / Math.PI,
-                this.setpointSupplier.getAsDouble()
+                this.setpointSupplier.getAsDouble(),
+                0
             )/RobotController.getBatteryVoltage()
         );
+                // this.motorController.getSelectedSensorPosition()*ENCODER_TICKS_TO_ROTATIONS / 2 / Math.PI,
         log(
-            this.motorController.getSelectedSensorPosition(PID_SLOT),
-            this.motorController.getSelectedSensorVelocity(PID_SLOT),
+            this.motorController.getSelectedSensorPosition(PID_SLOT) * ENCODER_TICKS_TO_ROTATIONS * MAGIC_NUMBER,
+            this.motorController.getSelectedSensorVelocity(PID_SLOT) * ENCODER_TICKS_TO_ROTATIONS * MAGIC_NUMBER * 10,
             (this.motorController.getSelectedSensorVelocity(PID_SLOT) - prev_velocity)/(Timer.getFPGATimestamp()-prev_timestamp)
         );
         prev_velocity = this.motorController.getSelectedSensorVelocity(PID_SLOT);

@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -11,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.drivetrain.Balance;
+import frc.robot.commands.drivetrain.DebugMotorMovement;
 import frc.robot.subsystems.DriveSubsystem;
 
 /**
@@ -61,30 +65,38 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    CommandScheduler.getInstance().schedule(
+      new DebugMotorMovement(
+        "arm attempt",
+        new WPI_TalonFX(13),
+        () -> 0.05,
+        new ElevatorFeedforward(0.21679, 0.26169,  8.2054, 0.17697)
+      )
+    );
     
-    m_autonomousCommand =  new Balance(m_robotContainer.m_robotDrive.m_gyro,
-    new SimpleMotorFeedforward(
-            DriveConstants.ksVolts,
-            DriveConstants.kvVoltSecondsPerMeter,
-            DriveConstants.kaVoltSecondsSquaredPerMeter),
-    new PIDController(DriveConstants.kPDriveVel, 0.1, 0.00001),
-    new PIDController(DriveConstants.kPDriveVel, 0.1, 0.00001),
-    m_robotContainer.m_robotDrive::getWheelSpeeds,
-    // RamseteCommand passes volts to the callback
-    m_robotContainer.m_robotDrive::tankDriveVolts, 0.5, 0.1, m_robotContainer.m_robotDrive);
-    //m_robotContainer.getAutonomousCommand();
+    // m_autonomousCommand =  new Balance(m_robotContainer.m_robotDrive.m_gyro,
+    // new SimpleMotorFeedforward(
+    //         DriveConstants.ksVolts,
+    //         DriveConstants.kvVoltSecondsPerMeter,
+    //         DriveConstants.kaVoltSecondsSquaredPerMeter),
+    // new PIDController(DriveConstants.kPDriveVel, 0.1, 0.00001),
+    // new PIDController(DriveConstants.kPDriveVel, 0.1, 0.00001),
+    // m_robotContainer.m_robotDrive::getWheelSpeeds,
+    // // RamseteCommand passes volts to the callback
+    // m_robotContainer.m_robotDrive::tankDriveVolts, 0.5, 0.1, m_robotContainer.m_robotDrive);
+    // //m_robotContainer.getAutonomousCommand();
 
-    /*
-     * String autoSelected = SmartDashboard.getString("Auto Selector",
-     * "Default"); switch(autoSelected) { case "My Auto": autonomousCommand
-     * = new MyAutoCommand(); break; case "Default Auto": default:
-     * autonomousCommand = new ExampleCommand(); break; }
-     */
+    // /*
+    //  * String autoSelected = SmartDashboard.getString("Auto Selector",
+    //  * "Default"); switch(autoSelected) { case "My Auto": autonomousCommand
+    //  * = new MyAutoCommand(); break; case "Default Auto": default:
+    //  * autonomousCommand = new ExampleCommand(); break; }
+    //  */
 
-    // schedule the autonomous command (example)
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
-    }
+    // // schedule the autonomous command (example)
+    // if (m_autonomousCommand != null) {
+    //   m_autonomousCommand.schedule();
+    // }
   }
 
   /** This function is called periodically during autonomous. */
