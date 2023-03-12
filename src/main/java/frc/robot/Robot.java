@@ -123,7 +123,7 @@ public class Robot extends TimedRobot {
     // String trajectoryJSON = "pathplanner/generatedJSON/compact_backup_test.wpilib.json";
     // String trajectoryJSON = "pathplanner/generatedJSON/long_turnless.wpilib.json";
     // String trajectoryJSON = "pathplanner/generatedJSON/big_wide_turns.wpilib.json";
-    String trajectoryJSON = "pathplanner/generatedJSON/no backup.wpilib.json";
+    String trajectoryJSON = "pathplanner/generatedJSON/no_backup.wpilib.json";
 
     Trajectory trajectory = new Trajectory();
     try {
