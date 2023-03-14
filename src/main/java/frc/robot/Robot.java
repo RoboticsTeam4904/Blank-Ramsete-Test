@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.drivetrain.DebugMotorMovement;
+import frc.robot.commands.drivetrain.FunnyNumber;
+import static frc.robot.commands.drivetrain.FunnyNumber.funnynumber;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -64,7 +66,12 @@ public class Robot extends TimedRobot {
         "arm attempt",
         new WPI_TalonFX(13),
         () -> 0.05,
-        new ElevatorFeedforward(0.21679, 0.26169,  8.2054, 0.17697)
+        new ElevatorFeedforward(
+          funnynumber("ks", 0.21679),
+          funnynumber("kg", 0.26169),
+          funnynumber("kv", 8.2054),
+          funnynumber("ka", 0.17697)
+        )
       )
     );
     

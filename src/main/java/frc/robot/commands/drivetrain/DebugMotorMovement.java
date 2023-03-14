@@ -11,11 +11,15 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
+import static frc.robot.commands.drivetrain.FunnyNumber.sdlog;
+import static frc.robot.commands.drivetrain.FunnyNumber.funnynumber;
+
 public class DebugMotorMovement extends CommandBase {
-    public static double MAGIC_NUMBER = 0.0798;
+    public static double MAGIC_NUMBER = funnynumber("funny spool circumfrence (m)", Units.inchesToMeters(1) * Math.PI);
     public static double ENCODER_TICKS_TO_ROTATIONS = 1/2048;
     public static int PID_SLOT = 0;
     public WPI_TalonFX motorController;
@@ -51,17 +55,24 @@ public class DebugMotorMovement extends CommandBase {
         System.out.println("MOTOR DEBUG STAT - " + this.label + " " + line);
     }
     public void execute() {
+        // this.motorController.setVoltage(3);
+
         this.motorController.setVoltage(
-            this.feedforward.calculate(
+            sdlog("feedforward output", this.feedforward.calculate(
                 this.setpointSupplier.getAsDouble(),
                 0
-            )
+            ))
         );
+
+
+
+
+
                 // this.motorController.getSelectedSensorPosition()*ENCODER_TICKS_TO_ROTATIONS / 2 / Math.PI,
         log(
-            this.motorController.getSelectedSensorPosition(PID_SLOT) * ENCODER_TICKS_TO_ROTATIONS * MAGIC_NUMBER,
-            this.motorController.getSelectedSensorVelocity(PID_SLOT) * ENCODER_TICKS_TO_ROTATIONS * MAGIC_NUMBER * 10,
-            (this.motorController.getSelectedSensorVelocity(PID_SLOT) - prev_velocity)/(Timer.getFPGATimestamp()-prev_timestamp)
+            sdlog("position rot", this.motorController.getSelectedSensorPosition(PID_SLOT) * ENCODER_TICKS_TO_ROTATIONS * MAGIC_NUMBER),
+            sdlog("velocity rpm", this.motorController.getSelectedSensorVelocity(PID_SLOT) * ENCODER_TICKS_TO_ROTATIONS * MAGIC_NUMBER * 10),
+            sdlog("accelera rpmps", (this.motorController.getSelectedSensorVelocity(PID_SLOT) - prev_velocity)/(Timer.getFPGATimestamp()-prev_timestamp))
         );
         prev_velocity = this.motorController.getSelectedSensorVelocity(PID_SLOT);
         prev_timestamp = Timer.getFPGATimestamp();
