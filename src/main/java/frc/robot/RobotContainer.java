@@ -136,8 +136,8 @@ public class RobotContainer {
 				DriveConstants.kaVoltSecondsSquaredPerMeter),
 			DriveConstants.kDriveKinematics,
 			m_robotDrive::getWheelSpeeds,
-			new PIDController(DriveConstants.kPDriveVel*4, 0, 0),
-			new PIDController(DriveConstants.kPDriveVel*4, 0, 0),
+			new PIDController(DriveConstants.kPDriveVel*6, 0, 0),
+			new PIDController(DriveConstants.kPDriveVel*6, 0, 0),
 			// RamseteCommand passes volts to the callback
 			m_robotDrive::tankDriveVolts,
 			m_robotDrive);
@@ -200,7 +200,21 @@ public class RobotContainer {
                 // End 3 meters straight ahead of where we started, facing forward
                 new Pose2d(4, 0, new Rotation2d(Math.PI/2)),
                 // Pass config
-                config);        
+                config);     
+                
+                
+        // Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
+        //         // Start at the origin facing the +X direction
+        //         new Pose2d(0, 0, new Rotation2d(0)),
+        //         // Pass through these two interior waypoints, making an 's' curve path
+        //         // List.of(new Translation2d(0.33*dist, .15*dist), new Translation2d(0.66*dist, -.15*dist)),
+        //         List.of(new Translation2d(8, 0)),
+
+        //         // End 3 meters straight ahead of where we started, facing forward
+        //         new Pose2d(-1, 0, new Rotation2d(0)),
+        //         // Pass config
+        //         config);   
+                
         System.out.println(this.m_robotDrive.toString());
 	return this.getAutonomousCommand(exampleTrajectory);
     }

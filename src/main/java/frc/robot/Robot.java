@@ -121,9 +121,10 @@ public class Robot extends TimedRobot {
     
     // String trajectoryJSON = "output/haha.wpilib.json";
     // String trajectoryJSON = "pathplanner/generatedJSON/compact_backup_test.wpilib.json";
-    // String trajectoryJSON = "pathplanner/generatedJSON/long_turnless.wpilib.json";
+    String trajectoryJSON = "pathplanner/generatedJSON/long_turnless.wpilib.json";
     // String trajectoryJSON = "pathplanner/generatedJSON/big_wide_turns.wpilib.json";
-    String trajectoryJSON = "pathplanner/generatedJSON/no_backup.wpilib.json";
+    // String trajectoryJSON = "pathplanner/generatedJSON/no_backup.wpilib.json";
+    //String trajectoryJSON = "pathplanner/generatedJSON/just_forwards.wpilib.json";
 
     Trajectory trajectory = new Trajectory();
     try {
@@ -135,7 +136,13 @@ public class Robot extends TimedRobot {
       DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
     }
 
+    // trajectory = new Trajectory(
+    //   new 
+    // );
+
     m_autonomousCommand = m_robotContainer.getAutonomousCommand(trajectory);
+    // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+
     // m_autonomousCommand = new Gaming(m_robotContainer.m_robotDrive);
     /*
      * String autoSelected = SmartDashboard.getString("Auto Selector",
