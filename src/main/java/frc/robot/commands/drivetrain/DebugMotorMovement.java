@@ -1,22 +1,16 @@
 package frc.robot.commands.drivetrain;
 
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.function.DoubleSupplier;
 import java.util.stream.Collectors;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
-import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
@@ -61,7 +55,7 @@ public class DebugMotorMovement extends CommandBase {
             this.feedforward.calculate(
                 this.setpointSupplier.getAsDouble(),
                 0
-            )/RobotController.getBatteryVoltage()
+            )
         );
                 // this.motorController.getSelectedSensorPosition()*ENCODER_TICKS_TO_ROTATIONS / 2 / Math.PI,
         log(

@@ -7,15 +7,10 @@ package frc.robot;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.Constants.DriveConstants;
-import frc.robot.commands.drivetrain.Balance;
 import frc.robot.commands.drivetrain.DebugMotorMovement;
-import frc.robot.subsystems.DriveSubsystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -26,7 +21,9 @@ import frc.robot.subsystems.DriveSubsystem;
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   
-  private RobotContainer m_robotContainer;
+  // Instantiate our RobotContainer. This will perform all our button bindings,
+  // and put our autonomous chooser on the dashboard.
+  private final RobotContainer m_robotContainer = new RobotContainer();
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -34,9 +31,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
-    // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
   }
 
   /**
