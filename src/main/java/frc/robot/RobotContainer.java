@@ -49,6 +49,10 @@ public class RobotContainer {
                 public static WPI_TalonFX rightATalonFX;
                 public static WPI_TalonFX rightBTalonFX;
                 public static WPI_TalonFX testTalon;
+                public static WPI_TalonFX armExtension = new WPI_TalonFX(14);
+                public static WPI_TalonFX armPivotLeft = new WPI_TalonFX(11);
+                public static WPI_TalonFX armPivotRight = new WPI_TalonFX(12);
+
         }
 
         // The robot's subsystems

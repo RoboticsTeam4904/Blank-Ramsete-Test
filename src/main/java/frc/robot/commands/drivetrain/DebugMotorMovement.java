@@ -1,6 +1,7 @@
 package frc.robot.commands.drivetrain;
 
 import java.io.BufferedWriter;
+import java.lang.module.ModuleDescriptor.Requires;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -13,6 +14,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 import static frc.robot.commands.drivetrain.FunnyNumber.sdlog;
@@ -31,6 +33,7 @@ public class DebugMotorMovement extends CommandBase {
     private double prev_timestamp;
     public DebugMotorMovement(String label, WPI_TalonFX motorController, DoubleSupplier setpointSupplier, ElevatorFeedforward feedforward) {
         this.motorController = motorController;
+        this.motorController.configNeutralDeadband(0.0001);
         this.label = label;
         this.setpointSupplier = setpointSupplier;
         this.feedforward = feedforward;
@@ -52,18 +55,23 @@ public class DebugMotorMovement extends CommandBase {
                 this.writer.write(line + "\n");
             } catch (Exception e) {}
         }
-        System.out.println("MOTOR DEBUG STAT - " + this.label + " " + line);
+        System.out.println("MOTOR DEBUG STAT - " + this.label + " " + line.toString());
     }
     public void execute() {
-        // this.motorController.setVoltage(3);
+        this.motorController.setVoltage(3);
 
+        // this.motorController.set(funnynumber("motor set", 0.1));
+
+
+        // SmartDashboard.putNumber("scre", this.feedforward.calculate(this.setpointSupplier.getAsDouble()));
+        // this.motorController.setVoltage(this.feedforward.calculate(this.setpointSupplier.getAsDouble(), 0));
         this.motorController.setVoltage(
             sdlog("feedforward output", this.feedforward.calculate(
                 this.setpointSupplier.getAsDouble(),
                 0
             ))
         );
-
+        SmartDashboard.putNumber("actual output voltage", motorController.get());
 
 
 
