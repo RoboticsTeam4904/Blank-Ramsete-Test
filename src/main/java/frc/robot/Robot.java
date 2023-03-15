@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
@@ -75,22 +76,24 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    funnyMotorA = new WPI_TalonFX(11);
-    funnyMotorA.setInverted(InvertType.InvertMotorOutput);
-    funnyMotorB = new WPI_TalonFX(12);
+    funnyMotorA = new WPI_TalonFX(12);
+    funnyMotorA.setInverted(InvertType.None);
+    funnyMotorB = new WPI_TalonFX(11);
     funnyMotorB.setInverted(InvertType.OpposeMaster);
     funnyMotorB.follow(funnyMotorA);
+    funnyMotorA.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
+    funnyMotorA.setSelectedSensorPosition(0);
 
     CommandScheduler.getInstance().schedule(
       new DebugMotorMovement(
         "arm attempt",
         funnyMotorA,
-        () -> 0.1,
+        () -> 0.1*2*Math.PI,
         new ArmFeedforward(
-          funnynumber("ks", 0.21679),
-          funnynumber("kg", 0.26169),
-          funnynumber("kv", 8.2054),
-          funnynumber("ka", 0.17697)
+          funnynumber("ks", 0),
+          funnynumber("kg", 0.46),
+          funnynumber("kv", 0.86),
+          funnynumber("ka", 0.01)
         )
       )
     );

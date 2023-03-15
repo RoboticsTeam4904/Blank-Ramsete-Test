@@ -1,6 +1,7 @@
 package frc.robot.commands.drivetrain;
 
 import java.io.BufferedWriter;
+import java.io.Console;
 import java.lang.module.ModuleDescriptor.Requires;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -17,14 +18,15 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.CANTalonEncoder;
 
 import static frc.robot.commands.drivetrain.FunnyNumber.sdlog;
 import static frc.robot.commands.drivetrain.FunnyNumber.funnynumber;
 
 public class DebugMotorMovement extends CommandBase {
     public static double GEARBOX_RATIO = 48;
-    public static double MAGIC_NUMBER = funnynumber("funny spool circumfrence (radians)", 1/GEARBOX_RATIO);
-    public static double ENCODER_TICKS_TO_ROTATIONS = 1/2048;
+    public static double MAGIC_NUMBER = funnynumber("funny spool circumfrence (radians)", GEARBOX_RATIO);
+    public static double ENCODER_TICKS_TO_ROTATIONS = 2048;
     public static int PID_SLOT = 0;
     public WPI_TalonFX motorController;
     public String label;
@@ -33,6 +35,7 @@ public class DebugMotorMovement extends CommandBase {
     private BufferedWriter writer;
     private double prev_velocity;
     private double prev_timestamp;
+    private CANTalonEncoder encoder;
     public DebugMotorMovement(String label, WPI_TalonFX motorController, DoubleSupplier setpointSupplier, ArmFeedforward feedforward) {
         this.motorController = motorController;
         this.motorController.configNeutralDeadband(0.0001);
@@ -43,7 +46,8 @@ public class DebugMotorMovement extends CommandBase {
         this.prev_velocity = 0;
         this.prev_timestamp = Timer.getFPGATimestamp();
 
-        this.motorController.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, PID_SLOT, 0);
+        this.encoder = new CANTalonEncoder(motorController, 2*Math.PI/2048/48);
+        // this.motorController.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, PID_SLOT, 0);
 
         try {
             this.writer = Files.newBufferedWriter(Paths.get(label + "-log.csv"));
@@ -60,7 +64,7 @@ public class DebugMotorMovement extends CommandBase {
         System.out.println("MOTOR DEBUG STAT - " + this.label + " " + line.toString());
     }
     public void execute() {
-        this.motorController.setVoltage(3);
+        // this.motorController.setVoltage(3);
 
         // this.motorController.set(funnynumber("motor set", 0.1));
 
@@ -69,19 +73,23 @@ public class DebugMotorMovement extends CommandBase {
         // this.motorController.setVoltage(this.feedforward.calculate(this.setpointSupplier.getAsDouble(), 0));
         this.motorController.setVoltage(
             sdlog("feedforward output", this.feedforward.calculate(
-                this.setpointSupplier.getAsDouble(),
+                this.motorController.getSelectedSensorPosition()/2048/48 * 2 * Math.PI, this.setpointSupplier.getAsDouble(),
                 0
             ))
         );
         SmartDashboard.putNumber("actual output voltage", motorController.get());
-
+        // SmartDashboard.putNumber("aaaaaa rotations", motorController.getSelectedSensorPosition() * MAGIC_NUMBER * ENCODER_TICKS_TO_ROTATIONS * 2 * Math.PI);
+        SmartDashboard.putNumber("aaaaaa rotations", encoder.getDistance());
+        // System.out.println(motorController.getSelectedSensorPosition() * MAGIC_NUMBER * ENCODER_TICKS_TO_ROTATIONS * 2 * Math.PI);
 
 
 
                 // this.motorController.getSelectedSensorPosition()*ENCODER_TICKS_TO_ROTATIONS / 2 / Math.PI,
         log(
-            sdlog("position rot", this.motorController.getSelectedSensorPosition(PID_SLOT) * ENCODER_TICKS_TO_ROTATIONS * MAGIC_NUMBER),
-            sdlog("velocity rpm", this.motorController.getSelectedSensorVelocity(PID_SLOT) * ENCODER_TICKS_TO_ROTATIONS * MAGIC_NUMBER * 10),
+            // sdlog("position rot", this.motorController.getSelectedSensorPosition(PID_SLOT) * ENCODER_TICKS_TO_ROTATIONS * MAGIC_NUMBER),
+            sdlog("position rot", encoder.getDistance()), 
+
+            sdlog("velocity rpm", this.motorController.getSelectedSensorVelocity(PID_SLOT)/ENCODER_TICKS_TO_ROTATIONS/MAGIC_NUMBER * 10 * 2 * Math.PI),
             sdlog("accelera rpmps", (this.motorController.getSelectedSensorVelocity(PID_SLOT) - prev_velocity)/(Timer.getFPGATimestamp()-prev_timestamp))
         );
         prev_velocity = this.motorController.getSelectedSensorVelocity(PID_SLOT);
