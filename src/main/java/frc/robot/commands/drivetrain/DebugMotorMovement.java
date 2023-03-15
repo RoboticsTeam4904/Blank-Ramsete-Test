@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
@@ -28,11 +29,11 @@ public class DebugMotorMovement extends CommandBase {
     public WPI_TalonFX motorController;
     public String label;
     private DoubleSupplier setpointSupplier;
-    private ElevatorFeedforward feedforward;
+    private ArmFeedforward feedforward;
     private BufferedWriter writer;
     private double prev_velocity;
     private double prev_timestamp;
-    public DebugMotorMovement(String label, WPI_TalonFX motorController, DoubleSupplier setpointSupplier, ElevatorFeedforward feedforward) {
+    public DebugMotorMovement(String label, WPI_TalonFX motorController, DoubleSupplier setpointSupplier, ArmFeedforward feedforward) {
         this.motorController = motorController;
         this.motorController.configNeutralDeadband(0.0001);
         this.label = label;

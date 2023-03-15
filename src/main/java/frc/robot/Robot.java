@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -85,7 +86,7 @@ public class Robot extends TimedRobot {
         "arm attempt",
         funnyMotorA,
         () -> 0.1,
-        new ElevatorFeedforward(
+        new ArmFeedforward(
           funnynumber("ks", 0.21679),
           funnynumber("kg", 0.26169),
           funnynumber("kv", 8.2054),
