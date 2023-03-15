@@ -61,7 +61,7 @@ public class DebugMotorMovement extends CommandBase {
             this.feedforward.calculate(
                 this.setpointSupplier.getAsDouble(),
                 0
-            )/RobotController.getBatteryVoltage()
+            )
         );
                 // this.motorController.getSelectedSensorPosition()*ENCODER_TICKS_TO_ROTATIONS / 2 / Math.PI,
         log(
