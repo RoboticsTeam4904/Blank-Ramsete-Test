@@ -1,10 +1,7 @@
 package frc.robot.subsystems;
 
-import java.io.Console;
-
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ManualTalonEncoderLmao {

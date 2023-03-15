@@ -1,9 +1,8 @@
 package frc.robot;
 
-import com.ctre.phoenix.Util;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.VelocityMeasPeriod;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
+import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
 
 /**
  * Encoder class for the Built-in Encoders on Talon Motor Controllers
@@ -27,7 +26,7 @@ public class CANTalonEncoder implements CustomEncoder {
 		setReverseDirection(reverseDirection);
 		setDistancePerPulse(distancePerPulse);
 		setFeedbackDevice(feedbackDevice);
-		this.talon.configVelocityMeasurementPeriod(VelocityMeasPeriod.valueOf(period));
+		this.talon.configVelocityMeasurementPeriod(SensorVelocityMeasPeriod.valueOf(period));
 	}
 
 	public CANTalonEncoder(String name, BaseTalon talon, boolean reverseDirection, double distancePerPulse,

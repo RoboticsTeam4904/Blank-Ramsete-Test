@@ -4,18 +4,16 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.Constants.DriveConstants;
-import frc.robot.commands.drivetrain.Balance;
 import frc.robot.commands.drivetrain.DebugMotorMovement;
-import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.commands.drivetrain.FunnyNumber;
+import static frc.robot.commands.drivetrain.FunnyNumber.funnynumber;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -26,7 +24,9 @@ import frc.robot.subsystems.DriveSubsystem;
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   
-  private RobotContainer m_robotContainer;
+  // Instantiate our RobotContainer. This will perform all our button bindings,
+  // and put our autonomous chooser on the dashboard.
+  private final RobotContainer m_robotContainer = new RobotContainer();
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -34,9 +34,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
-    // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
   }
 
   /**
@@ -57,7 +54,16 @@ public class Robot extends TimedRobot {
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    RobotContainer.Component.armPivotLeft.setNeutralMode(NeutralMode.Brake);
+    RobotContainer.Component.armPivotRight.setNeutralMode(NeutralMode.Brake);
+    RobotContainer.Component.armExtension.setNeutralMode(NeutralMode.Brake);
+
+    RobotContainer.Component.armPivotLeft.neutralOutput();;
+    RobotContainer.Component.armPivotRight.neutralOutput();;
+    RobotContainer.Component.armExtension.neutralOutput();;
+
+  }
 
   @Override
   public void disabledPeriodic() {}
@@ -68,9 +74,14 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().schedule(
       new DebugMotorMovement(
         "arm attempt",
-        new WPI_TalonFX(13),
+        new WPI_TalonFX(14),
         () -> 0.05,
-        new ElevatorFeedforward(0.21679, 0.26169,  8.2054, 0.17697)
+        new ElevatorFeedforward(
+          funnynumber("ks", 0.21679),
+          funnynumber("kg", 0.26169),
+          funnynumber("kv", 8.2054),
+          funnynumber("ka", 0.17697)
+        )
       )
     );
     
@@ -122,6 +133,13 @@ public class Robot extends TimedRobot {
   public void testInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
+    RobotContainer.Component.armPivotLeft.setNeutralMode(NeutralMode.Coast);
+    RobotContainer.Component.armPivotRight.setNeutralMode(NeutralMode.Coast);
+    RobotContainer.Component.armExtension.setNeutralMode(NeutralMode.Coast);
+
+    RobotContainer.Component.armPivotLeft.neutralOutput();;
+    RobotContainer.Component.armPivotRight.neutralOutput();;
+    RobotContainer.Component.armExtension.neutralOutput();;
   }
 
   /** This function is called periodically during test mode. */

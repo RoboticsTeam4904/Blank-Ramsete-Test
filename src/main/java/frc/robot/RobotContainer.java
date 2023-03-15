@@ -22,16 +22,12 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import java.util.List;
-import frc.robot.Gaming;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
@@ -53,6 +49,10 @@ public class RobotContainer {
                 public static WPI_TalonFX rightATalonFX;
                 public static WPI_TalonFX rightBTalonFX;
                 public static WPI_TalonFX testTalon;
+                public static WPI_TalonFX armExtension = new WPI_TalonFX(14);
+                public static WPI_TalonFX armPivotLeft = new WPI_TalonFX(11);
+                public static WPI_TalonFX armPivotRight = new WPI_TalonFX(12);
+
         }
 
         // The robot's subsystems
@@ -84,8 +84,6 @@ public class RobotContainer {
 
                 // Configure default commands
                 // Set the default drive command to split-stick arcade drive
-                m_robotDrive.setDefaultCommand(
-                                new RunCommand(() -> System.out.println("I am inside your home"), m_robotDrive));
                 // // A split-stick arcade command, with forward/backward controlled by the left
                 // // hand, and turning controlled by the right.
                 // new RunCommand(
