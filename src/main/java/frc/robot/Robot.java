@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
@@ -23,6 +24,8 @@ import static frc.robot.commands.drivetrain.FunnyNumber.funnynumber;
  */
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
+  private WPI_TalonFX funnyMotorA;
+  private WPI_TalonFX funnyMotorB;
   
   // Instantiate our RobotContainer. This will perform all our button bindings,
   // and put our autonomous chooser on the dashboard.
@@ -71,11 +74,17 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    funnyMotorA = new WPI_TalonFX(11);
+    funnyMotorA.setInverted(InvertType.InvertMotorOutput);
+    funnyMotorB = new WPI_TalonFX(12);
+    funnyMotorB.setInverted(InvertType.OpposeMaster);
+    funnyMotorB.follow(funnyMotorA);
+
     CommandScheduler.getInstance().schedule(
       new DebugMotorMovement(
         "arm attempt",
-        new WPI_TalonFX(14),
-        () -> 0.05,
+        funnyMotorA,
+        () -> 0.1,
         new ElevatorFeedforward(
           funnynumber("ks", 0.21679),
           funnynumber("kg", 0.26169),

@@ -21,7 +21,8 @@ import static frc.robot.commands.drivetrain.FunnyNumber.sdlog;
 import static frc.robot.commands.drivetrain.FunnyNumber.funnynumber;
 
 public class DebugMotorMovement extends CommandBase {
-    public static double MAGIC_NUMBER = funnynumber("funny spool circumfrence (m)", Units.inchesToMeters(1) * Math.PI);
+    public static double GEARBOX_RATIO = 48;
+    public static double MAGIC_NUMBER = funnynumber("funny spool circumfrence (radians)", 1/GEARBOX_RATIO);
     public static double ENCODER_TICKS_TO_ROTATIONS = 1/2048;
     public static int PID_SLOT = 0;
     public WPI_TalonFX motorController;
