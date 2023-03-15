@@ -140,8 +140,8 @@ public class Robot extends TimedRobot {
     //   new 
     // );
 
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand(trajectory);
-    // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    // m_autonomousCommand = m_robotContainer.getAutonomousCommand(trajectory);
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // m_autonomousCommand = new Gaming(m_robotContainer.m_robotDrive);
     /*
